@@ -1,0 +1,20 @@
+1, Determine budget, Calculate how much you can realistically afford to pay for a house.,2023-07-08 09:24:05,False
+2, Identify type of loan, Research different types of loans to determine which loan option works best for your financial situation. ,2023-07-08 09:24:05,False
+3, Gather necessary documents,  Collect all of the financial documents you will need when applying for a loan. This includes pay stubs,2023-07-08 09:24:05,False
+4, Find a real estate agent, Find a real estate agent who has experience in the type of property you’re looking to buy and who can help you through the entire process of buying a house.,2023-07-08 09:24:05,False
+5, Search for houses, Start looking for properties that meet your needs and budget. Make sure to attend as many open houses as possible to get an idea of what you want in a purchase.,2023-07-08 09:24:05,False
+6, Make an offer, After identifying a property you are interested in,2023-07-08 09:24:05,False
+7, Review inspection report, Have an inspector visit the property to ascertain any necessary repairs and make sure everything is in good order. Then review the inspection report before proceeding.,2023-07-08 09:24:05,False
+8, Final offer, Negotiate any changes based on the inspection report and come to an agreement with the sellers. Then make a final offer before proceeding with the necessary paperwork for the purchase.,2023-07-08 09:24:05,False
+9, Closing, The closing process involves signing the paperwork,2023-07-08 09:24:05,False
+10,study chemistry,"Life is like a game of chess. Every move we make has consequences  and the better we plan and strategize our moves  the better off we will be in the end. Studying chemistry is just another move in the game of life  and you have the ability to strategize and plan your moves to take full advantage of the situation. With a good study plan and the right motivation  you can achieve greatness in chemistry and come out ahead in the game of life!",2023-07-08 09:30:14,False
+11,study math,1. Start with the basics of math - learn basic addition  subtraction  multiplication  and division.2. Move on to more complex math topics  like algebra  trigonometry  calculus  and geometry.3. Practice using examples and problem sets to practice what you have learned.4. If needed  use online resources like textbooks  online courses  and videos to help you learn and understand.5. Make sure to review topics regularly to keep your understanding sharp.6. Ask for help from teachers or other knowledgeable sources if you get stuck.,2023-07-08 12:52:08,False
+12,study physics,1. Take physics classes in high school.2. Research undergraduate and graduate degree programs in physics.3. Earn a degree in physics from a college or university.4. Consider taking supplemental courses in mathematics.5. Participate in physics-related internships or research programs.6. Continue your studies by pursuing a graduate degree in physics.7. Get involved in research projects to gain experience and knowledge.8. Look into career opportunities in physics.9. Keep up with new developments and findings in physics.,2023-07-08 12:54:03,False
+13, Get Ready, Get dressed,2023-07-08 13:08:09,False
+14, Depart From Home, Walk,2023-07-08 13:08:09,False
+15, Enter University, Unlock door,2023-07-08 13:08:09,False
+16, Review Core Concepts, Review linear equations,2023-07-08 17:07:10,False
+17, Solve Math Problems, Solve linear and quadratic equations,2023-07-08 17:07:10,False
+18, Practice with Word Problems, Solve real-world problems involving linear and quadratic equations,2023-07-08 17:07:10,False
+19, Work Through Practice Tests, Consolidate understanding of math concepts by working through practice tests using linear equations,2023-07-08 17:07:10,False
+20, Spend Time Reviewing and Evaluating Performance, Evaluate where you stand and areas of improvement by going through the practice tests and review any concepts that you had trouble with.,2023-07-08 17:07:10,False

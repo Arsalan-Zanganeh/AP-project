@@ -1,0 +1,170 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavManager
+@implements IAsyncDisposable
+
+
+
+
+
+<div>
+    <label>
+        Task <input style="width: 400px;margin-right: 10px;" @bind="messageInput" />
+    </label>
+    <label>
+        DueDate
+        <input style="width: 100px;margin-right: 10px;" placeholder="Add Month" @bind="messageInputAddMonth" />
+        <input style="width: 100px;margin-right: 10px;" placeholder="Add Day" @bind="messageInputAddDay" />
+        <input style="width: 100px;margin-right: 10px;" placeholder="Add hour" @bind="messageInputAddHour" />
+    </label>
+    <button class="btn btn-primary" @onclick="SendTask" disabled="@(IsConnected == false)">Send</button>
+</div>
+
+<br>
+
+<div>
+    <label>
+        Break Task <input style="width: 400px;margin-right: 10px;margin-left: 10px;" @bind="messageInputBroken" />
+    </label>
+    <label>
+        into <input style="width: 100px; margin-right: 10px; margin-left: 10px;" @bind="messageInputBrokenInto" /> minutes
+    </label>
+    <button style="margin-left: 10px;" class="btn btn-primary" @onclick="SendBreakTask" disabled="@(IsConnected == false)">Send</button>
+</div>
+
+<br>
+
+<div>
+    <label>
+        Get Inspiration for <input style="width: 400px; margin-right: 10px;" @bind="messageInputGetInspiredFor" />
+        by <input style="margin-right: 10px; margin-left: 10px;" @bind="messageInputGetInspiredBy" />
+    </label>
+    <button class="btn btn-primary" @onclick="SendGetInspiration" disabled="@(IsConnected == false)">Send</button>
+</div>
+
+
+
+<hr />
+
+
+<ul>
+    @foreach (string message in messages)
+    {
+        <li>@message</li>
+    }
+</ul>
+
+
+@code
+{
+    @using LibraryClass
+    @using System.ComponentModel
+
+    ClassNeccessary myObject = new ClassNeccessary();
+
+    private HubConnection? ConnectionMessage;
+    private HubConnection? ConnectionToDo;
+    private List<string> messages = new();
+    private string messageInput="";
+    private string messageInputGetInspiredFor="";
+    private string messageInputGetInspiredBy="";
+    private string messageInputBroken="";
+    private string messageInputBrokenInto="";
+    private string messageInputAddMonth="";
+    private string messageInputAddDay="";
+    private string messageInputAddHour="";
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        ConnectionMessage = new HubConnectionBuilder()
+            .WithUrl(NavManager.ToAbsoluteUri("/chathubmessage"))
+            .WithAutomaticReconnect()
+            .Build();
+
+
+        ConnectionToDo = new HubConnectionBuilder()
+            .WithUrl(NavManager.ToAbsoluteUri("/chathubtodo"))
+            .WithAutomaticReconnect()
+            .Build();
+
+
+        ConnectionToDo.On<ToDo>("ReceiveEdit",(s) =>
+            {
+                InvokeAsync(()=>
+                {
+                    StateHasChanged();
+                });
+            });
+
+
+        ConnectionMessage.On("ReceiveMessage",(string user,string message) =>
+        {
+            var formmatedmessage = $"{user}: {message}";
+            messages.Add(formmatedmessage);
+            InvokeAsync(StateHasChanged);
+        });
+
+
+        await ConnectionToDo.StartAsync();
+        await ConnectionMessage.StartAsync();
+    }
+
+    private async Task SendTask()
+    {
+        if(ConnectionMessage is not null)
+        {
+            await ConnectionMessage.SendAsync("SendMessage","BlazorServer",$"I want to {messageInput}. Give me the instructions.");
+            var result = await myObject.DoTask(messageInput,messageInputAddMonth,messageInputAddDay,messageInputAddHour);
+            myObject.SaveToDo(messageInput,result.Replace("\n","").Replace(",",":"),myObject.GetTime(messageInputAddMonth,messageInputAddDay,messageInputAddHour));
+            messageInput="";
+            messageInputAddMonth="";
+            messageInputAddDay="";
+            messageInputAddHour="";
+            await ConnectionMessage.SendAsync("SendMessage","ChatGPT",result);
+            await ConnectionToDo.SendAsync("SendEdit",new ToDo());
+        }
+    }
+
+    private async Task SendGetInspiration()
+    {
+        if(ConnectionMessage is not null)
+        {
+            await ConnectionMessage.SendAsync("SendMessage","BlazorServer",$"I want to get inspired to {messageInputGetInspiredFor}.");
+            var result = await myObject.InspireForTask(messageInputGetInspiredFor,messageInputGetInspiredBy);
+            myObject.SaveToDo(messageInputGetInspiredFor,result.Replace("\n","").Replace(","," "),DateTime.Now);
+            messageInputGetInspiredFor="";
+            messageInputGetInspiredBy="";
+            await ConnectionMessage.SendAsync("SendMessage","ChatGPT",result);
+            await ConnectionToDo.SendAsync("SendEdit",new ToDo());
+        }
+    }
+
+    private async Task SendBreakTask()
+    {
+        if(ConnectionMessage is not null)
+        {
+            await ConnectionMessage.SendAsync("SendMessage","BlazorServer",$"I want to break {messageInputBroken} into several tasks.");
+            var result = await myObject.BreakTask(messageInputBroken,messageInputBrokenInto);
+            messageInputBroken="";
+            messageInputBrokenInto="";
+            foreach(var i in result)
+            {
+                await ConnectionMessage.SendAsync("SendMessage","ChatGPT",i);
+                myObject.SaveToDo(i.Split(",")[0],i.Split(",")[1],DateTime.Now);
+            }
+            await ConnectionToDo.SendAsync("SendEdit",new ToDo());
+        }
+    }
+
+    public bool IsConnected => ConnectionMessage?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if(ConnectionMessage is not null)
+        {
+            await ConnectionMessage.DisposeAsync();
+        }
+    }
+}
+

@@ -1,0 +1,75 @@
+﻿<Window x:Class="WPFClient.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPFClient"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Center">
+            <Button x:Name="openConnection" FontSize="15" Click="openConnection_Click"  Padding="10 5" Margin="5 5 5 20">
+                Open Connection
+            </Button>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Left">
+            <TextBlock Text="Task" Padding="10 5" FontSize="15" Margin="5 5 0 5"/>
+            <TextBox x:Name="TaskInput" FontSize="15" MinWidth="300" Margin="0 5 5 5"/>
+            <TextBlock Text="DueDate -> AddMonth:" Padding="10 5" FontSize="15" Margin="5 5 0 5"/>
+            <TextBox x:Name="TaskInputAddMonth" FontSize="15" MinWidth="60" Margin="0 5 5 5"/>
+            <TextBlock Text="AddDay:" Padding="10 5" FontSize="15" Margin="5 5 0 5"/>
+            <TextBox x:Name="TaskInputAddDay" FontSize="15" MinWidth="60" Margin="0 5 5 5"/>
+            <TextBlock Text="AddHour:" Padding="10 5" FontSize="15" Margin="5 5 0 5"/>
+            <TextBox x:Name="TaskInputAddHour" FontSize="15" MinWidth="60" Margin="0 5 5 5"/>
+            <Button x:Name="SendTask" FontSize="15" Click="SendTask_Click" IsEnabled="false" Padding="10 5" Margin="20 5 5 5">
+                Send
+            </Button>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Left">
+            <TextBlock Text="Break Task" Padding="10 5" FontSize="15" Margin="5 5 0 5"/>
+            <TextBox x:Name="BreakTaskInput" MinWidth="300" FontSize="15" Margin="0 5 5 5"/>
+            <TextBlock Text="into" Padding="10 5" FontSize="15" Margin="5 5 0 5"/>
+            <TextBox x:Name="BreakTaskInputInto" MinWidth="300" FontSize="15" Margin="0 5 5 5"/>
+            <TextBlock Text="minutes" Padding="10 5" FontSize="15" Margin="5 5 0 5"/>
+            <Button x:Name="SendBreakTask" FontSize="15" Click="SendBreakTask_Click" IsEnabled="false" Padding="10 5" Margin="20 5 5 5">
+                Send
+            </Button>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="3" HorizontalAlignment="Left">
+            <TextBlock Text="Get Inspiration For" Padding="10 5" FontSize="15" Margin="5 5 0 5"/>
+            <TextBox x:Name="GetInspirationForInput" MinWidth="300" FontSize="15" Margin="0 5 5 5"/>
+            <TextBlock Text="by" Padding="10 5" FontSize="15" Margin="5 5 0 5"/>
+            <TextBox x:Name="GetInspirationByInput" MinWidth="300" FontSize="15" Margin="0 5 5 5"/>
+            <Button x:Name="SendGetInspirationTask" FontSize="15" Click="SendGetInspirationTask_Click" IsEnabled="false" Padding="10 5" Margin="20 5 5 5">
+                Send
+            </Button>
+        <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Left">
+            <Button x:Name="GetToDos" FontSize="15" Click="GetToDos_Click" IsEnabled="false" Padding="10 5" Margin="20 5 5 5">
+                Get To Dos
+            </Button>
+            <Button x:Name="GetInterests" FontSize="15" Click="GetInterests_Click" IsEnabled="false" Padding="10 5" Margin="20 5 5 5">
+                Get Interests
+            </Button>
+        </StackPanel>
+
+        </StackPanel>
+        <ScrollViewer Grid.Row="5" Margin="6" FontSize="15" MaxWidth="1300" VerticalScrollBarVisibility="Auto">
+            <ListBox x:Name="messages" FontSize="15" ScrollViewer.HorizontalScrollBarVisibility="Auto" Padding="10 5" BorderThickness="0" />
+        </ScrollViewer>
+
+
+    </Grid>
+</Window>

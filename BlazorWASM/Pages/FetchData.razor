@@ -1,0 +1,322 @@
+﻿@page "/fetchdata"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavManager
+@implements IAsyncDisposable
+
+<PageTitle>Fetch Data</PageTitle>
+
+<div>
+    <button class="btn btn-primary" style="margin-right: 10px;" @onclick="() => ShowInterests()">Show Interests</button>
+    <button class="btn btn-primary" @onclick="() => ShowToDos()">Show ToDos</button>
+</div>
+
+<br>
+
+<div>
+    <label>
+        <input style="width: 100px;margin-right: 10px;" placeholder="id" @bind="messageInputremoveInterest" />
+    </label>
+    <button style="margin-left: 10px;margin-right: 40px;" class="btn btn-primary" @onclick="RemoveInterest" >Remove Interest</button>
+    <label>
+        <input style="width: 200px;margin-right: 10px;" placeholder="Name" @bind="messageInputSaveInterest" />
+    </label>
+    <button style="margin-right: 40px;" class="btn btn-primary" @onclick="AddInterest" >Add Interest</button>
+    <label>
+        <input style="width: 100px;margin-right: 10px;" placeholder="id" @bind="messageInputEditInterestId" />
+        <input style="width: 200px;margin-right: 10px;" placeholder="new name" @bind="messageInputEditInterestNewName" />
+    </label>
+    <button style="margin-right: 60px;" class="btn btn-primary" @onclick="EditInterest" >Edit Interest</button>
+</div>
+
+<br>
+
+<div>
+    <label>
+        <input style="width: 100px;margin-right: 10px;" placeholder="id" @bind="messageInputRemoveToDo" />
+    </label>
+    <button style="margin-left: 10px;margin-right: 60px;" class="btn btn-primary" @onclick="RemoveToDo" >Remove ToDo</button>
+    <label>
+        <input style="width: 100px;margin-right: 10px;" placeholder="id" @bind="messageInputeditToDoId" />
+        <input style="width: 100px;margin-right: 10px;" placeholder="is completed" @bind="messageInputeditToDoiscompleted" />
+        <input style="width: 250px;margin-right: 10px;" placeholder="duedate:yyyy-mm-dd hh:mm:ss" @bind="messageInputeditToDoduedate" />
+    </label>
+    <button style="margin-left: 10px;margin-right: 60px;" class="btn btn-primary" @onclick="EditToDo" >Edit ToDo</button>
+</div>
+
+@if (_showInterests)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var interest in _interests)
+            {
+                <tr>
+                    <td>@interest.Id</td>
+                    <td>@interest.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+else if (_showToDos)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Answer</th>
+                <th>DueDate</th>
+                <th>IsCompleted</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var todo in _todos)
+            {
+                <tr>
+                    <td>@todo.Id</td>
+                    <td>@todo.Name</td>
+                    <td>@todo.Answer</td>
+                    <td>@todo.DueDate</td>
+                    <td>@todo.IsCompleted</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    @using LibraryClass
+    @using System.Globalization
+
+    private HubConnection? connectionInterest;
+    private HubConnection? connectionToDo;
+    ClassNeccessary myObject =  new ClassNeccessary();
+    private bool _showInterests = false;
+    private bool _showToDos = false;
+    private List<ToDo> _todos=new List<ToDo>{};
+    private List<Interest> _interests=new List<Interest>{};
+    private string messageInputremoveInterest = "";
+    private string messageInputSaveInterest="";
+    private string messageInputEditInterestId="";
+    private string messageInputEditInterestNewName="";
+    private string messageInputRemoveToDo="";
+    private string messageInputeditToDoId="";
+    private string messageInputeditToDoiscompleted="";
+    private string messageInputeditToDoduedate="";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        connectionInterest = new HubConnectionBuilder()
+            .WithUrl(NavManager.ToAbsoluteUri("/chathubinterest"))
+            .WithAutomaticReconnect()
+            .Build();
+
+        connectionToDo = new HubConnectionBuilder()
+            .WithUrl(NavManager.ToAbsoluteUri("/chathubtodo"))
+            .WithAutomaticReconnect()
+            .Build();
+
+
+        connectionInterest.On<Interest>("ReceiveEdit",(s) =>
+        {
+            InvokeAsync(()=>
+            {
+                _interests = new List<Interest>{};
+                foreach(var i in myObject.GetInterests())
+                {
+                    _interests.Add(i);
+                }
+                _showInterests = true;
+                _showToDos = false;
+                StateHasChanged();
+            });
+        });
+
+        connectionToDo.On<ToDo>("ReceiveEdit",(s) =>
+            {
+                InvokeAsync(()=>
+                {
+                    _todos=new List<ToDo>{};
+                    foreach(var i in myObject.GetToDos())
+                    {
+                        _todos.Add(i);
+                    }
+                    _showToDos = true;
+                    _showInterests = false;
+                    StateHasChanged();
+                });
+            });
+
+        
+        await connectionToDo.StartAsync();
+        await connectionInterest.StartAsync();
+    }
+
+
+    private void ShowInterests()
+    {
+        lock(myObject.locker)
+        {
+            _interests=new List<Interest>{};
+            foreach(var i in myObject.GetInterests())
+            {
+                _interests.Add(i);
+            }
+            _showInterests = true;
+            _showToDos = false;
+        }
+    }
+
+    private void ShowToDos()
+    {
+        _todos=new List<ToDo>{};
+        foreach(var i in myObject.GetToDos())
+        {
+            _todos.Add(i);
+        }
+        _showInterests = false;
+        _showToDos = true;
+    }
+
+    private async Task RemoveInterest()
+    {
+        try
+        {
+            myObject.RemoveInterest(Convert.ToInt32(messageInputremoveInterest));
+            await connectionInterest.SendAsync("SendEdit",new Interest(){});
+            _interests=new List<Interest>{};
+            foreach(var i in myObject.GetInterests())
+            {
+                _interests.Add(i);
+            }
+            _showInterests = true;
+            _showToDos = false;
+            messageInputremoveInterest="";
+        }
+        catch
+        {
+
+        }
+    }
+
+    private async Task AddInterest()
+    {
+        if(messageInputSaveInterest!="" & messageInputSaveInterest!=null)
+        {
+            myObject.SaveInterest(messageInputSaveInterest);
+            await connectionInterest.SendAsync("SendEdit",new Interest(){});
+            _interests=new List<Interest>{};
+            foreach(var i in myObject.GetInterests())
+            {
+                _interests.Add(i);
+            }
+            _showInterests = true;
+            _showToDos = false; 
+            messageInputSaveInterest=""; 
+        }
+    }
+
+    private async Task EditInterest()
+    {
+        try
+        {
+            if(messageInputEditInterestNewName!=null & messageInputEditInterestNewName!="")
+            {
+                myObject.EditInterest(Convert.ToInt32(messageInputEditInterestId),messageInputEditInterestNewName);
+                await connectionInterest.SendAsync("SendEdit",new Interest(){});
+                _interests=new List<Interest>{};
+                foreach(var i in myObject.GetInterests())
+                {
+                    _interests.Add(i);
+                }
+                _showInterests = true;
+                _showToDos = false;
+                messageInputEditInterestNewName="";
+                messageInputEditInterestId="";
+            }
+        }
+        catch
+        {
+
+        }
+    }
+
+    public async Task RemoveToDo()
+    {
+        try
+        {
+            myObject.RemoveToDo(Convert.ToInt32(messageInputRemoveToDo));
+            await connectionToDo.SendAsync("SendEdit",new ToDo());
+            _todos=new List<ToDo>{};
+            foreach(var i in myObject.GetToDos())
+            {
+                _todos.Add(i);
+            }
+            _showToDos=true;
+            _showInterests=false;
+            messageInputRemoveToDo="";
+        }
+        catch
+        {
+
+        }
+    }
+
+    public async Task EditToDo()
+    {
+        try
+        {
+            myObject.EditToDo(Convert.ToInt32(messageInputeditToDoId),Convert.ToBoolean(messageInputeditToDoiscompleted),DateTime.ParseExact(messageInputeditToDoduedate,"yyyy-MM-dd HH:mm:ss",CultureInfo.InvariantCulture));
+            await connectionToDo.SendAsync("SendEdit",new ToDo());
+            _todos=new List<ToDo>{};
+            foreach(var i in myObject.GetToDos())
+            {
+                _todos.Add(i);
+            }
+            _showToDos=true;
+            _showInterests=false;
+            messageInputeditToDoId="";
+            messageInputeditToDoiscompleted="";
+            messageInputeditToDoduedate="";
+        }
+        catch
+        {
+            try
+            {
+                myObject.EditToDo(Convert.ToInt32(messageInputeditToDoId),Convert.ToBoolean(messageInputeditToDoiscompleted),DateTime.Now);
+                await connectionToDo.SendAsync("SendEdit",new ToDo());
+                _todos=new List<ToDo>{};
+                foreach(var i in myObject.GetToDos())
+                {
+                    _todos.Add(i);
+                }
+                _showToDos=true;
+                _showInterests=false;
+                messageInputeditToDoId="";
+                messageInputeditToDoiscompleted="";
+                messageInputeditToDoduedate="";
+            }
+            catch
+            {
+
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if(connectionInterest is not null)
+        {
+            await connectionInterest.DisposeAsync();
+        }
+    }
+}
